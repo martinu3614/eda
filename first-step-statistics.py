@@ -28,6 +28,12 @@ if uploaded_file is not None :
     numerical_df = data_type[data_type['データ型'] != object]
     numerical_column = numerical_df.index.values
     numerical_column_list = numerical_column.tolist()
+    #二値データのカラムリスト
+    data_unique = df.nunique().to_frame()
+    data_unique.columns = ['ユニークな要素数']
+    twovalues_df = data_unique[data_unique['ユニークな要素数'] == 2]
+    twovalues_column = twovalues_df.index.values
+    twovalues_column_list = twovalues_column.tolist()
 
     #データの概要
     st.sidebar.title('データの概要')
@@ -68,12 +74,25 @@ if uploaded_file is not None :
     if check_heat == True :
         heat_data = st.sidebar.multiselect('使用データ', numerical_column_list, numerical_column_list[0])
 
-    #『回帰分析』設定
+    
+    #データ分析
+
+    #『線形回帰分析』設定
     st.sidebar.title('線形回帰分析')
-    check_regression = st.sidebar.checkbox('分析する')
+    check_regression = st.sidebar.checkbox('線形回帰分析を実施する')
     if check_regression == True :
         y_regression = st.sidebar.selectbox('目的変数', numerical_column)
         x_regression = st.sidebar.multiselect('説明変数', numerical_column_list, numerical_column_list[1])
+
+    #『ロジスティック回帰分析』設定
+    st.sidebar.title('ロジスティック回帰分析')
+    check_logistic = st.sidebar.checkbox('ロジスティック回帰分析を実施する')
+    if check_logistic == True:
+        if len(twovalues_column) != 0:
+            y_logistic = st.sidebar.selectbox('目的変数', twovalues_column)
+            x_logistic = st.sidebar.multiselect('説明変数', column_list)
+        else:
+            st.sidebar.write('二値変数がありません')
 
 
 #___________________________________________________________________________________________
@@ -144,7 +163,7 @@ if uploaded_file is not None :
             if x_axis_corr in numerical_column_list and y_axis_corr in numerical_column_list :
                 #相関係数の算出method
                 method_corr = 'pearson'
-                method_corr = st.radio('相関係数の算出方法', ('pearson', 'spearman', 'kendall'))
+                method_corr = st.radio('相関係数の算出方法（散布図）', ('pearson', 'spearman', 'kendall'))
                 scat_corr = scat_df.corr(method=method_corr)
                 correlation_coefficient = scat_corr.iat[0,1]
                 st.write('相関係数 : ', correlation_coefficient)
@@ -160,7 +179,7 @@ if uploaded_file is not None :
         else:
             heat_df = df[heat_data]
             method_heat = 'pearson'
-            method_heat = st.radio('相関係数の算出方法', ('pearson', 'spearman', 'kendall'))
+            method_heat = st.radio('相関係数の算出方法（ヒートマップ）', ('pearson', 'spearman', 'kendall'))
             heat_corr = heat_df.corr(method=method_heat)
             #ヒートマップ設定
             value_display = True
@@ -178,7 +197,7 @@ if uploaded_file is not None :
         if len(x_regression) == 0:
             st.write('説明変数を選択して下さい')
         elif y_regression in x_regression :
-            st.write('説明変数の目的変数と同じものが含まれています')
+            st.write('説明変数に目的変数が含まれています')
         elif x_regression != y_regression :
             #説明変数の作成
             df_x_regression = df[x_regression]
@@ -196,3 +215,21 @@ if uploaded_file is not None :
             #モデルの適合度
             r2 = linear_regression.score(df_x_regression, df_y_regression)
             st.write('モデルの適合度 : ', r2)
+
+    #ロジスティック回帰分析
+    if check_logistic == True and len(twovalues_column) != 0:
+        st.header('ロジスティック回帰分析')
+        if len(x_logistic) == 0:
+            st.write('説明変数を選択して下さい')
+        elif y_logistic in x_logistic:
+            st.write('説明変数に目的変数が含まれています')
+        elif x_logistic != y_logistic:
+            #説明変数の作成
+            df_x_logistic = df[x_logistic]
+            #目的変数の作成
+            df_y_logistic = df[y_logistic]
+            #モデルへの当てはめ
+            logistic_regression = linear_model.LogisticRegression()
+            logistic_regression.fit(df_x_logistic, df_y_logistic)
+            #精度
+            logistic_regression.score(df_x_logistic, df_y_logistic)
