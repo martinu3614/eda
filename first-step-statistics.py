@@ -136,8 +136,11 @@ if uploaded_file is not None:
     if check_null == True and check_removal == True:
         null_count = df.isnull().sum().to_frame()
         null_count_after = df_after.isnull().sum().to_frame()
+        null_count.columns = ['欠損数']
+        null_count_after.columns = ['欠損数']
     elif check_null == True and check_removal == False:
         null_count = df.isnull().sum().to_frame()
+        null_count.columns = ['欠損数']
     else:
         pass
 else:
@@ -252,25 +255,24 @@ else:
 
 if uploaded_file is not None :
     #欠損数
-    if check_null == True :
-        if check_removal == False:
-            st.header('欠損数')
-            null_count.columns = ['欠損数']
+    if check_null == True and check_removal == True:
+        st.header('欠損値')
+        null_select = st.radio('表示する欠損数の選択', ('除去前', '除去後'))
+        if null_select == '除去前':
             null_count['欠損割合'] = null_count['欠損数'] / len(df.index)
             st.table(null_count)
         else:
-            st.header('欠損数')
-            null_select = st.radio('表示する欠損数の選択', ('除去前', '除去後'))
-            if null_select == '除去前':
-                null_count.columns = ['欠損数']
-                null_count['欠損割合'] = null_count['欠損数'] / len(df.index)
-                st.table(null_count)
-            else:
-                null_count_after.columns = ['欠損数']
-                null_count_after['欠損割合'] = null_count_after['欠損数'] / len(df.index)
-                st.table(null_count_after)
+            null_count_after['欠損割合'] = null_count_after['欠損数'] / len(df.index)
+            st.table(null_count_after)
+    elif check_null == True and check_removal == False:
+        st.header('欠損値')
+        null_count['欠損割合'] = null_count['欠損数'] / len(df.index)
+        st.table(null_count)
+    else:
+        pass
 else:
     pass
+        
 
 
 if uploaded_file is not None :
