@@ -11,6 +11,9 @@ import seaborn as sns
 import sys
 import scipy.stats as sts
 
+#再起処理回数設定
+sys.setrecursionlimit(1000000)
+
 
 #___________________________________________________________________________________________
 # サイドバー
@@ -35,26 +38,115 @@ if uploaded_file is not None :
     twovalues_column = twovalues_df.index.values
     twovalues_column_list = twovalues_column.tolist()
 
+
+
+
+if uploaded_file is not None:
+    #データの整形
+    st.sidebar.title('データの整形')
+
+    #欠損値データの除去
+    check_removal = st.sidebar.checkbox('欠損値データの除去')
+    if check_removal == True:
+        st.title('欠損値データの除去')
+        removal_method = st.radio('除去方法', ('ペアワイズ除去', 'リストワイズ除去'))
+        if removal_method == 'ペアワイズ除去':
+            df_after = df.dropna()
+            #チェックボックス用のカラムリスト
+            column_after = df_after.columns.values
+            column_list_after = column_after.tolist()
+            #数値データのカラムリスト
+            data_type_after = df_after.dtypes.to_frame()
+            data_type_after.columns = ['データ型']
+            numerical_df_after = data_type_after[data_type_after['データ型'] != object]
+            numerical_column_after = numerical_df_after.index.values
+            numerical_column_list_after = numerical_column_after.tolist()
+            #二値データのカラムリスト
+            data_unique_after = df_after.nunique().to_frame()
+            data_unique_after.columns = ['ユニークな要素数']
+            twovalues_df_after = data_unique_after[data_unique_after['ユニークな要素数'] == 2]
+            twovalues_column_after = twovalues_df_after.index.values
+            twovalues_column_list_after = twovalues_column_after.tolist()
+        elif removal_method == 'リストワイズ除去':
+            listwize_list = st.multiselect('リストワイズ除去の対象変数', column_list, column_list[0])
+            df_after = df[listwize_list].dropna()
+            #チェックボックス用のカラムリスト
+            column_after = df_after.columns.values
+            column_list_after = column_after.tolist()
+            #数値データのカラムリスト
+            data_type_after = df_after.dtypes.to_frame()
+            data_type_after.columns = ['データ型']
+            numerical_df_after = data_type_after[data_type_after['データ型'] != object]
+            numerical_column_after = numerical_df_after.index.values
+            numerical_column_list_after = numerical_column_after.tolist()
+            #二値データのカラムリスト
+            data_unique_after = df_after.nunique().to_frame()
+            data_unique_after.columns = ['ユニークな要素数']
+            twovalues_df_after = data_unique_after[data_unique_after['ユニークな要素数'] == 2]
+            twovalues_column_after = twovalues_df_after.index.values
+            twovalues_column_list_after = twovalues_column_after.tolist()
+else:
+    pass
+
+
+
+
+if uploaded_file is not None:
     #データの概要
     st.sidebar.title('データの概要')
 
     #データ型の確認
     check_datatype = st.sidebar.checkbox('データ型')
-    if check_datatype == True :
+    if check_datatype == True and check_removal == True:
         type_data = df.dtypes.to_frame()
+        type_data.columns = ['データ型']
+        type_data_after = df_after.dtypes.to_frame()
+        type_data_after.columns = ['データ型']
+    elif check_datatype == True and check_removal == False:
+        type_data = df.dtypes.to_frame()
+        type_data.columns = ['データ型']
+    else:
+        pass
+
     #要約統計量の確認
     check_summary = st.sidebar.checkbox('要約統計量')
-    if check_summary == True :
-        summary_data = df.describe()
-        summary_data.index = ['データ数', '平均値', '標準偏差', '最小値', '第一四分位数', '中央値', '第二四分位数', '最大値']
+    summary_index = ['データ数', '平均値', '標準偏差', '最小値', '第一四分位数', '中央値', '第二四分位数', '最大値']
+    if check_summary == True and check_removal == True:
+        if len(numerical_column_list_after) != 0:
+            summary_data = df.describe()
+            summary_data.index = summary_index
+            summary_data_after = df_after.describe()
+            summary_data_after.index = summary_index
+        elif len(numerical_column_list_after) == 0 and len(numerical_column_list) != 0: 
+            summary_data = df.describe()
+            summary_data.index = summary_index
+        else:
+            pass
+    elif check_summary == True and check_removal == False:
+        if len(numerical_column_list) != 0:
+            summary_data = df.describe()
+            summary_data.index = summary_index
+        else:
+            pass
+    else:
+        pass
     
     #欠損値数の確認
     check_null = st.sidebar.checkbox('欠損値数')
-    if check_null == True :
+    if check_null == True and check_removal == True:
         null_count = df.isnull().sum().to_frame()
+        null_count_after = df_after.isnull().sum().to_frame()
+    elif check_null == True and check_removal == False:
+        null_count = df.isnull().sum().to_frame()
+    else:
+        pass
+else:
+    pass
 
 
 
+
+if uploaded_file is not None:
     #グラフ作成
     st.sidebar.title('グラフ作成')
 
@@ -73,8 +165,11 @@ if uploaded_file is not None :
     check_heat = st.sidebar.checkbox('ヒートマップ')
     if check_heat == True :
         heat_data = st.sidebar.multiselect('使用データ', numerical_column_list, numerical_column_list[0])
+else:
+    pass
 
-    
+
+if uploaded_file is not None:
     #データ分析
 
     #『線形回帰分析』設定
@@ -93,6 +188,8 @@ if uploaded_file is not None :
             x_logistic = st.sidebar.multiselect('説明変数', column_list)
         else:
             st.sidebar.write('二値変数がありません')
+else:
+    pass
 
 
 #___________________________________________________________________________________________
@@ -108,41 +205,125 @@ if uploaded_file is not None :
 else:
     st.header('csvファイルを選択して下さい')
 
+
+
 if uploaded_file is not None :
     #データの概要
-    if check_datatype == True :
+    if check_datatype == True and check_removal == True:
         st.header('データ型')
-        type_data.columns = ['データ型']
+        datatype_select = st.radio('表示するデータ概要の選択', ('除去前', '除去後'))
+        if datatype_select == '除去前':
+            st.table(type_data)
+        else:
+            st.table(type_data_after)
+    elif check_datatype == True and check_removal == False:
         st.table(type_data)
+    else:
+        pass
+else:
+    pass
+ 
 
+if uploaded_file is not None :
     #要約統計量の確認
-    if check_summary == True :
+    if check_summary == True and check_removal == True:
         st.header('要約統計量')
-        st.table(summary_data)
+        summary_select = st.radio('表示する要約統計量の選択', ('除去前', '除去後'))
+        if summary_select == '除去前':
+            if len(numerical_column_list) == 0:
+                st.write('数値型の変数がありません')
+            else:
+                st.table(summary_data)
+        else:
+            if len(numerical_column_list_after) == 0:
+                st.write('数値型の変数がありません')
+            else:
+                st.table(summary_data_after)
+    elif check_summary == True and check_removal == False:
+        st.header('要約統計量')
+        if len(numerical_column_list) == 0:
+            st.write('数値型の変数がありません')
+        else:
+            st.table(summary_data)
+    else:
+        pass
+else:
+    pass
 
+if uploaded_file is not None :
     #欠損数
     if check_null == True :
-        st.header('欠損数')
-        null_count.columns = ['欠損数']
-        null_count['欠損割合'] = null_count['欠損数'] / len(df.index)
-        st.table(null_count)
-    
+        if check_removal == False:
+            st.header('欠損数')
+            null_count.columns = ['欠損数']
+            null_count['欠損割合'] = null_count['欠損数'] / len(df.index)
+            st.table(null_count)
+        else:
+            st.header('欠損数')
+            null_select = st.radio('表示する欠損数の選択', ('除去前', '除去後'))
+            if null_select == '除去前':
+                null_count.columns = ['欠損数']
+                null_count['欠損割合'] = null_count['欠損数'] / len(df.index)
+                st.table(null_count)
+            else:
+                null_count_after.columns = ['欠損数']
+                null_count_after['欠損割合'] = null_count_after['欠損数'] / len(df.index)
+                st.table(null_count_after)
+else:
+    pass
+
+
+if uploaded_file is not None :
     #ヒストグラム
     if check_hist == True :
-        st.header('ヒストグラム')
-        #ヒストグラムの編集
-        hist_edit = st.checkbox('グラフを編集する')
-        #グラフのデフォルト
-        opa = 0.6
-        bins = int(math.log(len(df[hist_data]), 2)) + 1
-        #詳細設定
-        if hist_edit == True :
-            opa = st.slider('透明度', min_value=0.0, max_value=1.0, step=0.01, value=opa)
-            if df[hist_data].dtype != 'object' :
-                bins = st.slider('ビンの数', min_value=2, max_value=100, step=1, value=bins)
-        hist = px.histogram(data_frame=df[hist_data], x=hist_data, opacity=opa, nbins = bins)
-        st.write(hist)
-    
+        if check_removal == False:
+            st.header('ヒストグラム')
+            #ヒストグラムの編集
+            hist_edit = st.checkbox('グラフを編集する')
+            #グラフのデフォルト
+            opa = 0.6
+            bins = int(math.log(len(df[hist_data]), 2)) + 1
+            #詳細設定
+            if hist_edit == True :
+                opa = st.slider('透明度', min_value=0.0, max_value=1.0, step=0.01, value=opa)
+                if df[hist_data].dtype != 'object' :
+                    bins = st.slider('ビンの数', min_value=2, max_value=100, step=1, value=bins)
+            hist = px.histogram(data_frame=df[hist_data], x=hist_data, opacity=opa, nbins = bins)
+            st.write(hist)
+        else:
+            hist_select = st.selectbox('ヒストグラム選択', ('除去前', '除去後'))
+            if hist_select == '除去前':
+                st.header('ヒストグラム')
+                #ヒストグラムの編集
+                hist_edit = st.checkbox('グラフを編集する')
+                #グラフのデフォルト
+                opa = 0.6
+                bins = int(math.log(len(df[hist_data]), 2)) + 1
+                #詳細設定
+                if hist_edit == True :
+                    opa = st.slider('透明度', min_value=0.0, max_value=1.0, step=0.01, value=opa)
+                    if df[hist_data].dtype != 'object' :
+                        bins = st.slider('ビンの数', min_value=2, max_value=100, step=1, value=bins)
+                hist = px.histogram(data_frame=df[hist_data], x=hist_data, opacity=opa, nbins = bins)
+                st.write(hist)
+            else:
+                st.header('ヒストグラム')
+                #ヒストグラムの編集
+                hist_edit = st.checkbox('グラフを編集する')
+                #グラフのデフォルト
+                opa = 0.6
+                bins = int(math.log(len(df_after[hist_data]), 2)) + 1
+                #詳細設定
+                if hist_edit == True :
+                    opa = st.slider('透明度', min_value=0.0, max_value=1.0, step=0.01, value=opa)
+                    if df_after[hist_data].dtype != 'object' :
+                        bins = st.slider('ビンの数', min_value=2, max_value=100, step=1, value=bins)
+                hist_after = px.histogram(data_frame=df_after[hist_data], x=hist_data, opacity=opa, nbins = bins)
+                st.write(hist_after)
+else:
+    pass
+
+if uploaded_file is not None :
     #散布図
     if check_corr == True :
         st.header('散布図')
@@ -167,10 +348,12 @@ if uploaded_file is not None :
                 scat_corr = scat_df.corr(method=method_corr)
                 correlation_coefficient = scat_corr.iat[0,1]
                 st.write('相関係数 : ', correlation_coefficient)
-            
         else:
             st.write('※2つの異なる列を選択して下さい')
-    
+else:
+    pass
+
+if uploaded_file is not None : 
     #ヒートマップ(相関行列)
     if check_heat == True :
         st.header('ヒートマップ（相関行列）')
@@ -186,11 +369,13 @@ if uploaded_file is not None :
             value_display = st.radio('相関係数の表示有無', (True, False))
             fig_heat = plt.figure()
             ax1 = fig_heat.add_subplot(1, 1, 1)
-            sns.heatmap(heat_corr, vmin=-1.0, vmax=1.0, center=0, annot=value_display, fmt='.1f', xticklabels=heat_corr.columns.values, yticklabels=heat_corr.columns.values)
+            sns.heatmap(heat_corr, vmin=-1.0, vmax=1.0, center=0, annot=value_display, fmt='.3f', xticklabels=heat_corr.columns.values, yticklabels=heat_corr.columns.values)
             st.pyplot(fig_heat)
+else:
+    pass
 
     
-
+if uploaded_file is not None :
     #線形回帰分析
     if check_regression == True :
         st.header('線形回帰分析')
@@ -215,7 +400,25 @@ if uploaded_file is not None :
             #モデルの適合度
             r2 = linear_regression.score(df_x_regression, df_y_regression)
             st.write('モデルの適合度 : ', r2)
+            #多重共線性の確認
+            mul_corr_matrix = df_x_regression.corr(method='pearson')
+            mul_corr_value = []
+            for i in x_regression:
+                mul_corr_matrix = mul_corr_matrix.sort_values(i, ascending=False)
+                mul_corr_value.append(mul_corr_matrix[i].head(2).min())
+            mul_corr_max = max(mul_corr_value)
+            multicoll = st.checkbox('多重共線性の確認')
+            if multicoll == True:
+                multicoll_threshold = st.slider('多重共線性の閾値', max_value=1.0, min_value=0.5, step=0.1, value=0.7)
+                if mul_corr_max >= multicoll_threshold:
+                    st.write('多重共線性が認められます。説明変数間の相関を確認しましょう。')
+                else:
+                    st.write('多重共線性が認められませんでした。')
+else:
+    pass
+            
 
+if uploaded_file is not None :
     #ロジスティック回帰分析
     if check_logistic == True and len(twovalues_column) != 0:
         st.header('ロジスティック回帰分析')
@@ -233,3 +436,5 @@ if uploaded_file is not None :
             logistic_regression.fit(df_x_logistic, df_y_logistic)
             #精度
             logistic_regression.score(df_x_logistic, df_y_logistic)
+else:
+    pass
