@@ -277,7 +277,7 @@ else:
 
 if uploaded_file is not None :
     #ヒストグラム
-    if check_hist == True :
+    if check_hist == True:
         if check_removal == False:
             st.header('ヒストグラム')
             #ヒストグラムの編集
