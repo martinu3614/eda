@@ -37,8 +37,8 @@ if uploaded_file is not None :
     twovalues_df = data_unique[data_unique['ユニークな要素数'] == 2]
     twovalues_column = twovalues_df.index.values
     twovalues_column_list = twovalues_column.tolist()
-
-
+else:
+    pass
 
 
 if uploaded_file is not None:
@@ -85,9 +85,24 @@ if uploaded_file is not None:
             twovalues_df_after = data_unique_after[data_unique_after['ユニークな要素数'] == 2]
             twovalues_column_after = twovalues_df_after.index.values
             twovalues_column_list_after = twovalues_column_after.tolist()
+        else:
+            pass
+        st.header('欠損値処理後データの出力（csvファイル）')
+        file_name = st.text_input('ファイル名を入力して下さい（Enterで確定）')
+        out_put = st.button('出力する')
+        if out_put == True and file_name != '':
+            if '.csv' in file_name:
+                df_after.to_csv(file_name)
+            else:
+                df_after.to_csv(file_name + '.csv')
+        elif out_put == True and file_name == '':
+            st.write('※ファイル名を入力して下さい※')
+        else:
+            pass
+    else:
+        pass
 else:
     pass
-
 
 
 
@@ -182,8 +197,11 @@ if uploaded_file is not None:
     check_heat = st.sidebar.checkbox('ヒートマップ')
     if check_heat == True :
         heat_data = st.sidebar.multiselect('使用データ', numerical_column_list, numerical_column_list[0])
+    else:
+        pass
 else:
     pass
+
 
 
 if uploaded_file is not None:
@@ -195,6 +213,8 @@ if uploaded_file is not None:
     if check_regression == True :
         y_regression = st.sidebar.selectbox('目的変数', numerical_column)
         x_regression = st.sidebar.multiselect('説明変数', numerical_column_list, numerical_column_list[1])
+    else:
+        pass
 
     #『ロジスティック回帰分析』設定
     st.sidebar.title('ロジスティック回帰分析')
@@ -205,6 +225,8 @@ if uploaded_file is not None:
             x_logistic = st.sidebar.multiselect('説明変数', column_list)
         else:
             st.sidebar.write('二値変数がありません')
+    else:
+        pass
 else:
     pass
 
@@ -219,6 +241,8 @@ if uploaded_file is not None :
     if data_display == True :
         st.header('読み込みデータ（100行目まで）')
         st.dataframe(df.head(100))
+    else:
+        pass
 else:
     st.header('csvファイルを選択して下さい')
 
@@ -460,6 +484,8 @@ if uploaded_file is not None :
             ax1 = fig_heat.add_subplot(1, 1, 1)
             sns.heatmap(heat_corr, vmin=-1.0, vmax=1.0, center=0, annot=value_display, fmt='.3f', xticklabels=heat_corr.columns.values, yticklabels=heat_corr.columns.values)
             st.pyplot(fig_heat)
+    else:
+        pass
 else:
     pass
 
@@ -503,6 +529,12 @@ if uploaded_file is not None :
                     st.write('多重共線性が認められます。説明変数間の相関を確認しましょう。')
                 else:
                     st.write('多重共線性が認められませんでした。')
+            else:
+                pass
+        else:
+            pass
+    else:
+        pass
 else:
     pass
             
@@ -525,5 +557,9 @@ if uploaded_file is not None :
             logistic_regression.fit(df_x_logistic, df_y_logistic)
             #精度
             logistic_regression.score(df_x_logistic, df_y_logistic)
+        else:
+            pass
+    else:
+        pass
 else:
     pass
