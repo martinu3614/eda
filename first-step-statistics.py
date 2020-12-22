@@ -155,12 +155,17 @@ if uploaded_file is not None:
 
     #『ヒストグラムデータ』設定
     check_hist = st.sidebar.checkbox('ヒストグラム')
-    if check_hist == True :
+    if check_hist == True and check_removal == True:
+        hist_data = st.sidebar.selectbox('データ選択（除去前）', column)
+        hist_data_after = st.sidebar.selectbox('データ選択（除去後）', column_after)
+    elif check_hist == True and check_removal == False:
         hist_data = st.sidebar.selectbox('データ選択', column)
+    else:
+        pass
 
     #『散布図』『相関係数』設定
     check_corr = st.sidebar.checkbox('散布図（相関係数）')
-    if check_corr == True :
+    if check_corr == True:
         x_axis_corr = st.sidebar.selectbox('x軸項目', column)
         y_axis_corr = st.sidebar.selectbox('y軸項目', column)
     
@@ -277,53 +282,54 @@ else:
 
 if uploaded_file is not None :
     #ヒストグラム
-    if check_hist == True:
-        if check_removal == False:
-            st.header('ヒストグラム')
-            #ヒストグラムの編集
-            hist_edit = st.checkbox('グラフを編集する')
-            #グラフのデフォルト
-            opa = 0.6
-            bins = int(math.log(len(df[hist_data]), 2)) + 1
-            #詳細設定
-            if hist_edit == True :
-                opa = st.slider('透明度', min_value=0.0, max_value=1.0, step=0.01, value=opa)
-                if df[hist_data].dtype != 'object' :
-                    bins = st.slider('ビンの数', min_value=2, max_value=100, step=1, value=bins)
+    if check_hist == True and check_removal == True:
+        st.header('ヒストグラム')
+        hist_select = st.radio('ヒストグラム選択', ('除去前', '除去後'))
+        #ヒストグラムの編集
+        hist_edit = st.checkbox('グラフを編集する')
+        #グラフのデフォルト
+        opa = 0.6
+        bins = int(math.log(len(df[hist_data]), 2)) + 1
+        #詳細設定
+        if hist_edit == True :
+            opa = st.slider('透明度', min_value=0.0, max_value=1.0, step=0.01, value=opa)
+            if df[hist_data].dtype != 'object' :
+                bins = st.slider('ビンの数', min_value=2, max_value=100, step=1, value=bins)
+            else:
+                pass
+        else:
+            pass
+        if hist_select == '除去前':
             hist = px.histogram(data_frame=df[hist_data], x=hist_data, opacity=opa, nbins = bins)
             st.write(hist)
         else:
-            hist_select = st.selectbox('ヒストグラム選択', ('除去前', '除去後'))
-            if hist_select == '除去前':
-                st.header('ヒストグラム')
-                #ヒストグラムの編集
-                hist_edit = st.checkbox('グラフを編集する')
-                #グラフのデフォルト
-                opa = 0.6
-                bins = int(math.log(len(df[hist_data]), 2)) + 1
-                #詳細設定
-                if hist_edit == True :
-                    opa = st.slider('透明度', min_value=0.0, max_value=1.0, step=0.01, value=opa)
-                    if df[hist_data].dtype != 'object' :
-                        bins = st.slider('ビンの数', min_value=2, max_value=100, step=1, value=bins)
-                hist = px.histogram(data_frame=df[hist_data], x=hist_data, opacity=opa, nbins = bins)
-                st.write(hist)
+            hist_after = px.histogram(data_frame=df_after[hist_data_after], x=hist_data_after, opacity=opa, nbins = bins)
+            st.write(hist_after)
+    elif check_hist == True and check_removal == False:
+        st.header('ヒストグラム')
+        hist_select = st.selectbox('ヒストグラム選択', ('除去前', '除去後'))
+        #ヒストグラムの編集
+        hist_edit = st.checkbox('グラフを編集する')
+        #グラフのデフォルト
+        opa = 0.6
+        bins = int(math.log(len(df[hist_data]), 2)) + 1
+        #詳細設定
+        if hist_edit == True :
+            opa = st.slider('透明度', min_value=0.0, max_value=1.0, step=0.01, value=opa)
+            if df[hist_data].dtype != 'object' :
+                bins = st.slider('ビンの数', min_value=2, max_value=100, step=1, value=bins)
             else:
-                st.header('ヒストグラム')
-                #ヒストグラムの編集
-                hist_edit = st.checkbox('グラフを編集する')
-                #グラフのデフォルト
-                opa = 0.6
-                bins = int(math.log(len(df_after[hist_data]), 2)) + 1
-                #詳細設定
-                if hist_edit == True :
-                    opa = st.slider('透明度', min_value=0.0, max_value=1.0, step=0.01, value=opa)
-                    if df_after[hist_data].dtype != 'object' :
-                        bins = st.slider('ビンの数', min_value=2, max_value=100, step=1, value=bins)
-                hist_after = px.histogram(data_frame=df_after[hist_data], x=hist_data, opacity=opa, nbins = bins)
-                st.write(hist_after)
+                pass
+        else:
+            pass
+        hist = px.histogram(data_frame=df[hist_data], x=hist_data, opacity=opa, nbins = bins)
+        st.write(hist)
+    else:
+        pass
 else:
     pass
+
+
 
 if uploaded_file is not None :
     #散布図
