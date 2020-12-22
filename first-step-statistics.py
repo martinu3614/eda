@@ -12,7 +12,7 @@ import sys
 import scipy.stats as sts
 
 #再起処理回数設定
-sys.setrecursionlimit(1000000)
+sys.setrecursionlimit(100000)
 
 
 #___________________________________________________________________________________________
@@ -165,9 +165,18 @@ if uploaded_file is not None:
 
     #『散布図』『相関係数』設定
     check_corr = st.sidebar.checkbox('散布図（相関係数）')
-    if check_corr == True:
-        x_axis_corr = st.sidebar.selectbox('x軸項目', column)
-        y_axis_corr = st.sidebar.selectbox('y軸項目', column)
+    if check_corr == True and check_removal == True:
+        st.write('除去前変数')
+        x_axis_corr = st.sidebar.selectbox('x軸項目（除去前）', column)
+        y_axis_corr = st.sidebar.selectbox('y軸項目（除去前）', column)
+        st.write('除去後変数')
+        x_axis_corr_after = st.sidebar.selectbox('x軸項目（除去後）', column_after)
+        y_axis_corr_after = st.sidebar.selectbox('y軸項目（除去後）', column_after)
+    elif check_corr == True and check_removal == False:
+        x_axis_corr = st.sidebar.selectbox('x軸項目（除去前）', column)
+        y_axis_corr = st.sidebar.selectbox('y軸項目（除去前）', column)
+    else:
+        pass
     
     #『ヒートマップ』設定
     check_heat = st.sidebar.checkbox('ヒートマップ')
@@ -284,7 +293,7 @@ if uploaded_file is not None :
     #ヒストグラム
     if check_hist == True and check_removal == True:
         st.header('ヒストグラム')
-        hist_select = st.radio('ヒストグラム選択', ('除去前', '除去後'))
+        hist_select = st.radio('表示するヒストグラムの選択', ('除去前', '除去後'))
         #ヒストグラムの編集
         hist_edit = st.checkbox('グラフを編集する')
         #グラフのデフォルト
@@ -307,7 +316,6 @@ if uploaded_file is not None :
             st.write(hist_after)
     elif check_hist == True and check_removal == False:
         st.header('ヒストグラム')
-        hist_select = st.selectbox('ヒストグラム選択', ('除去前', '除去後'))
         #ヒストグラムの編集
         hist_edit = st.checkbox('グラフを編集する')
         #グラフのデフォルト
@@ -333,33 +341,106 @@ else:
 
 if uploaded_file is not None :
     #散布図
-    if check_corr == True :
+    #欠損値処理済
+    if check_corr == True and check_removal == True:
         st.header('散布図')
-        check_color_corr = st.checkbox('第3変数を指定する')
-        if x_axis_corr != y_axis_corr :
-            scat_df = pd.concat([df[x_axis_corr],df[y_axis_corr]], axis=1, join='outer')
-            if check_color_corr == True :
-                color_column = st.selectbox('第3変数を指定して下さい', column)
+        corr_select = st.radio('表示する散布図の選択', ('除去前', '除去後'))
+        check_color_corr = st.checkbox('第3変数を選択する')
+        #処理前表示
+        if corr_select == '除去前':
+            if x_axis_corr != y_axis_corr and check_color_corr == True:
+                scat_df = pd.concat([df[x_axis_corr],df[y_axis_corr]], axis=1, join='outer')
+                color_column = st.selectbox('第3変数を選択して下さい', column)
                 if x_axis_corr != color_column and y_axis_corr != color_column:
                     scat_df = pd.concat([scat_df, df[color_column]], axis=1, join='outer')
                     fig_corr = px.scatter(scat_df, x=x_axis_corr, y=y_axis_corr, color=color_column)
                 else:
+                    st.write('第3変数にはx,yと異なる変数を選択して下さい')
                     fig_corr = px.scatter(scat_df, x=x_axis_corr, y=y_axis_corr)
-                    st.write('x,yと異なる変数を選択して下さい')
+                st.plotly_chart(fig_corr, use_container_width=True)
+            elif x_axis_corr != y_axis_corr and check_color_corr == False:
+                scat_df = pd.concat([df[x_axis_corr],df[y_axis_corr]], axis=1, join='outer')
+                fig_corr = px.scatter(scat_df, x=x_axis_corr, y=y_axis_corr)
+                st.plotly_chart(fig_corr, use_container_width=True)
             else:
+                st.write('xとyは異なる変数を選択して下さい')
+                fig_corr = None
+        #処理後表示    
+        else:
+            if x_axis_corr_after != y_axis_corr_after and check_color_corr == True:
+                scat_df = pd.concat([df[x_axis_corr_after],df[y_axis_corr_after]], axis=1, join='outer')
+                color_column = st.selectbox('第3変数を選択して下さい', column_after)
+                if x_axis_corr_after != color_column and y_axis_corr_after != color_column:
+                    scat_df = pd.concat([scat_df, df[color_column]], axis=1, join='outer')
+                    fig_corr = px.scatter(scat_df, x=x_axis_corr_after, y=y_axis_corr_after, color=color_column)
+                else:
+                    st.write('第3変数にはx,yと異なる変数を選択して下さい')
+                    fig_corr = px.scatter(scat_df, x=x_axis_corr_after, y=y_axis_corr_after)
+
+                st.plotly_chart(fig_corr, use_container_width=True)
+            elif x_axis_corr_after != y_axis_corr_after and check_color_corr == False:
+                scat_df = pd.concat([df[x_axis_corr_after],df[y_axis_corr_after]], axis=1, join='outer')
+                fig_corr = px.scatter(scat_df, x=x_axis_corr_after, y=y_axis_corr_after)
+                st.plotly_chart(fig_corr, use_container_width=True)
+            else:
+                st.write('x,yは異なる変数を選択して下さい')
+                fig_corr = None
+    #欠損値処理なし
+    elif check_corr == True and check_removal == False:
+        st.header('散布図')
+        check_color_corr = st.checkbox('第3変数を選択する')
+        if x_axis_corr != y_axis_corr and check_color_corr == True:
+            scat_df = pd.concat([df[x_axis_corr],df[y_axis_corr]], axis=1, join='outer')
+            color_column = st.selectbox('第3変数を選択して下さい', column)
+            if x_axis_corr != color_column and y_axis_corr != color_column:
+                scat_df = pd.concat([scat_df, df[color_column]], axis=1, join='outer')
+                fig_corr = px.scatter(scat_df, x=x_axis_corr, y=y_axis_corr, color=color_column)
+            else:
+                st.write('第3変数にはx,yと異なる変数を選択して下さい')
                 fig_corr = px.scatter(scat_df, x=x_axis_corr, y=y_axis_corr)
             st.plotly_chart(fig_corr, use_container_width=True)
-            if x_axis_corr in numerical_column_list and y_axis_corr in numerical_column_list :
+        elif x_axis_corr != y_axis_corr and check_color_corr == False:
+            scat_df = pd.concat([df[x_axis_corr],df[y_axis_corr]], axis=1, join='outer')
+            fig_corr = px.scatter(scat_df, x=x_axis_corr, y=y_axis_corr)
+            st.plotly_chart(fig_corr, use_container_width=True)
+        else:
+            st.write('xとyは異なる変数を選択して下さい')
+            fig_corr = None
+    else:
+        fig_corr = None
+else:
+    pass
+
+#相関係数の表示
+if uploaded_file is not None:
+    if fig_corr is not None:
+        if check_removal == True and corr_select == '除去後':
+            if x_axis_corr_after in numerical_column_list_after and y_axis_corr_after in numerical_column_list_after:
                 #相関係数の算出method
                 method_corr = 'pearson'
                 method_corr = st.radio('相関係数の算出方法（散布図）', ('pearson', 'spearman', 'kendall'))
                 scat_corr = scat_df.corr(method=method_corr)
                 correlation_coefficient = scat_corr.iat[0,1]
-                st.write('相関係数 : ', correlation_coefficient)
+            else:
+                correlation_coefficient = 'カテゴリデータで相関係数は算出できません'
         else:
-            st.write('※2つの異なる列を選択して下さい')
+            if x_axis_corr in numerical_column_list and y_axis_corr in numerical_column_list:
+                #相関係数の算出method
+                method_corr = 'pearson'
+                method_corr = st.radio('相関係数の算出方法（散布図）', ('pearson', 'spearman', 'kendall'))
+                scat_corr = scat_df.corr(method=method_corr)
+                correlation_coefficient = scat_corr.iat[0,1]
+            else:
+                correlation_coefficient = 'カテゴリデータで相関係数は算出できません'
+        st.write('相関係数 : ', correlation_coefficient)
+    else:
+        pass
 else:
     pass
+
+
+
+
 
 if uploaded_file is not None : 
     #ヒートマップ(相関行列)
