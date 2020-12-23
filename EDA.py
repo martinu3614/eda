@@ -36,9 +36,17 @@ if uploaded_file is not None:
     twovalues_df = data_unique[data_unique['ユニークな要素数'] == 2]
     twovalues_column = twovalues_df.index.values
     twovalues_column_list = twovalues_column.tolist()
-    #カテゴリ変数のカラムリスト
+    #カテゴリ変数のカラムリスト（昇順）
     categorical_column = np.union1d(data_type[data_type['データ型'] == object].index.values, data_unique[data_unique['ユニークな要素数'] < 10].index.values)
     categorical_column_list = categorical_column.tolist()
+    if len(categorical_column_list) != 0:
+        categorical_data = df[categorical_column]  
+        categorical_data_unique = categorical_data.nunique().to_frame()
+        categorical_data_unique.columns = ['値の種類']
+        #カラムリストを要素の種類数でソート
+        categorical_data_unique = categorical_data_unique.sort_values('値の種類')
+        categorical_column = categorical_data_unique.index.values
+        categorical_column_list = categorical_column.tolist()
     #連続変数のカラムリスト
     continuous_column = np.intersect1d(numerical_column, data_unique[data_unique['ユニークな要素数'] >= 10].index.values)
     continuous_column_list = continuous_column.tolist()
@@ -109,9 +117,6 @@ if uploaded_file is not None:
             st.title('データの概要')
         st.header('カテゴリ変数の値の種類')
         if len(categorical_column_list) != 0:
-            categorical_data = df[categorical_column]  
-            categorical_data_unique = categorical_data.nunique().to_frame()
-            categorical_data_unique.column = ['値の種類']
             st.table(categorical_data_unique)
         else:
             st.write('カテゴリ変数がありません')
@@ -157,10 +162,12 @@ if uploaded_file is not None:
 else:
     pass
 
+#棒グラフの作成
 if uploaded_file is not None:
     bar_check = st.sidebar.checkbox('棒グラフ')
     if bar_check == True:
         st.header('棒グラフ')
+        st.write('（※値の種類が多いとグラフの作成に時間がかかることがあります）')
         bar_x = st.sidebar.selectbox('棒グラフのx軸の変数を選択してください', categorical_column)
         bar_hue_check = st.checkbox('色分け用の変数を指定する')
         if bar_hue_check == True:
@@ -172,8 +179,10 @@ if uploaded_file is not None:
             bar_fig = plt.figure()
             ax1 = bar_fig.add_subplot(1, 1, 1)
             sns.countplot(x=bar_x, data=df)
-        st.plotly_chart(bar_fig)
+        st.pyplot(bar_fig)
     else:
         pass
 else:
     pass
+
+#ヒストグラムの作成
