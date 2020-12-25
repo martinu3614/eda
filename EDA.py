@@ -189,6 +189,18 @@ if uploaded_file is not None:
             bar_fig = plt.figure()
             sns.countplot(x=bar_x, data=df)
         st.pyplot(bar_fig)
+        #グラフの保存
+        bar_name = st.text_input('棒グラフのファイル名を入力して下さい（Enterで確定）')
+        bar_out_put = st.button('棒グラフを出力する')
+        if bar_out_put == True and bar_name != '':
+            if '.png' in bar_name:
+                bar_fig.savefig(bar_name)
+            else:
+                bar_fig.savefig(bar_name + '.png')
+        elif bar_out_put == True and bar_name == '':
+            st.write('※ファイル名を入力して下さい※')
+        else:
+            pass
     else:
         pass
 else:
