@@ -37,7 +37,7 @@ if uploaded_file is not None:
     twovalues_column = twovalues_df.index.values
     twovalues_column_list = twovalues_column.tolist()
     #カテゴリ変数のカラムリスト（昇順）
-    data_type_unique = data_type
+    data_type_unique = df.dtypes.to_frame()
     data_type_unique['ユニークな要素数'] = data_unique['ユニークな要素数']
     categorical_column = data_type_unique[data_type_unique['ユニークな要素数'] < 10].index.values
     categorical_column_list = categorical_column.tolist()
@@ -95,7 +95,7 @@ else:
     pass
 
 
-#統計量の確認
+#要約統計量の確認
 if uploaded_file is not None:
     summary_check = st.sidebar.checkbox('統計量の確認')
     summary_index = ['データ数', '平均値', '標準偏差', '最小値', '第一四分位数', '中央値', '第二四分位数', '最大値']
@@ -107,6 +107,7 @@ if uploaded_file is not None:
             summary_data = df.describe()
             summary_data.index = summary_index
             st.table(summary_data)
+            st.write('※数値で表されたカテゴリ変数が含まれている場合があります')
         else:
             st.write('数値型の変数がありません')
     else:
@@ -153,8 +154,11 @@ if uploaded_file is not None:
         if dtype_check == False and summary_check == False and unique_check == False and null_check == False:
             st.title('データの概要')
         st.header('相関行列の確認')
-        corr_matrix = df.corr()
+        corr_matrix_method = 'pearson'
+        corr_matrix_method = st.radio('相関係数の算出方法（相関行列）', ('pearson', 'spearman', 'kendall'))
+        corr_matrix = df.corr(method=corr_matrix_method)
         st.table(corr_matrix)
+        st.write('※注目したい変数に合わせて算出方法を適切に選択して下さい')
     else:
         pass
 else:
@@ -169,7 +173,7 @@ if uploaded_file is not None:
         sns.set()
     else:
         sns.set_style('white')
-    file_type = ('png', 'eps', 'jpeg', 'jpg', 'pdf', 'pgf', 'ps', 'raw', 'rgba', 'svg', 'svgz', 'tif', 'tiff')
+    file_type = ('png', 'jpg', 'pdf', 'jpeg', 'eps', 'pgf', 'ps', 'raw', 'rgba', 'svg', 'svgz', 'tif', 'tiff')
 else:
     pass
 
