@@ -174,6 +174,8 @@ else:
 #グラフの作成
 if uploaded_file is not None:
     st.sidebar.title('グラフの作成')
+    title = None
+    border = None
     grid_check = st.sidebar.checkbox('グラフにグリッドをいれる')
     if grid_check == True:
         sns.set()
@@ -185,10 +187,11 @@ else:
 
 
 #棒グラフの作成
-if uploaded_file is not None:
+if uploaded_file is not None and len(categorical_column_list) >= 1:
     bar_check = st.sidebar.checkbox('棒グラフ')
     if bar_check == True:
-        st.title('グラフの作成')
+        border = not None
+        title = st.title('グラフの作成')
         st.header('棒グラフ')
         st.write('（※値の種類が多いとグラフの作成に時間がかかることがあります）')
         bar_x = st.sidebar.selectbox('棒グラフのx軸を選択してください', categorical_column)
@@ -215,7 +218,7 @@ if uploaded_file is not None:
         else:
             pass
     else:
-        pass
+        st.write('カテゴリ変数がありません')
 else:
     pass
 
@@ -223,16 +226,20 @@ else:
 #ヒストグラムの作成
 #スタージェス
 sturges = lambda n: math.ceil(math.log2(n*2))
-if uploaded_file is not None:
+if uploaded_file is not None and len(continuous_column_list) >= 1:
     hist_check = st.sidebar.checkbox('ヒストグラム')
     if hist_check == True:
-        if bar_check == False:
-            st.title('グラフの作成')
+        if border is not None:
+            st.write('_________________________________________________________________')
+        else:
+            border = not None
+        if title is None:
+            title = st.title('グラフの作成')
         st.header('ヒストグラム')
         hist_x = st.sidebar.selectbox('ヒストグラムのx軸を選択してください', continuous_column)
         hist_bin = sturges(len(df[hist_x]))
         hist_hue_check = st.checkbox('カテゴリ毎にヒストグラムを分ける')
-        if hist_hue_check == True:
+        if hist_hue_check == True and len(categorical_column_list) >= 1:
             hist_hue = st.selectbox('ヒストグラムを分けるカテゴリ変数', categorical_column)
             hist_fig = sns.FacetGrid(df, col=hist_hue)
             hist_fig.map_dataframe(sns.histplot, x=hist_x, ec='white')
@@ -263,12 +270,16 @@ else:
     pass
 
 #箱ひげ図andバイオリンプロットの作成
-if uploaded_file is not None:
+if uploaded_file is not None and len(categorical_column_list) >= 1 and len(continuous_column_list) >= 1:
     box_check = st.sidebar.checkbox('箱ひげ図とバイオリンプロット')
     if box_check == True:
-        if bar_check == False and hist_check == False:
-            st.title('グラフの作成')
-        st.header('箱ひげ図とバイオリンプロット')
+        if border is not None:
+            st.write('_________________________________________________________________')
+        else:
+            border = not None
+        if title is None:
+            title = st.title('グラフの作成')
+        st.header('箱ひげ図')
         box_x = st.sidebar.selectbox('箱ひげ図のx軸を選択してください', categorical_column)
         box_y = st.sidebar.selectbox('箱ひげ図のy軸を選択してください', continuous_column)
         box_df = pd.concat([df[box_x], df[box_y]], axis=1, join='outer')
@@ -289,6 +300,7 @@ if uploaded_file is not None:
             st.write('※ファイル名を入力して下さい※')
         else:
             pass
+        st.header('バイオリンプロット')
         violin_fig = plt.figure()
         sns.violinplot(x=df[box_x], y=df[box_y])
         st.pyplot(violin_fig)
@@ -311,11 +323,15 @@ else:
     pass
 
 #散布図の作成
-if uploaded_file is not None:
+if uploaded_file is not None and len(numerical_column_list) >= 1:
     scatt_check = st.sidebar.checkbox('散布図')
     if scatt_check == True:
-        if bar_check == False and hist_check == False and box_check == False:
-            st.title('グラフの作成')
+        if border is not None:
+            st.write('_________________________________________________________________')
+        else:
+            border = not None
+        if title is None:
+            title = st.title('グラフの作成')
         st.header('散布図')
         scatt_x = st.sidebar.selectbox('散布図のx軸を選択してください', numerical_column)
         scatt_y = st.sidebar.selectbox('散布図のy軸を選択してください', numerical_column)
@@ -373,11 +389,15 @@ else:
     pass
 
 #散布図行列の作成
-if uploaded_file is not None:
+if uploaded_file is not None and len(continuous_column_list) >= 1:
     scatt_matrix_check = st.sidebar.checkbox('散布図行列')
     if scatt_matrix_check == True:
-        if bar_check == False and hist_check == False and box_check == False and scatt_check == False:
-            st.title('グラフの作成')
+        if border is not None:
+            st.write('_________________________________________________________________')
+        else:
+            border = not None
+        if title is None:
+            title = st.title('グラフの作成')
         scatt_matrix_list = st.sidebar.multiselect('散布図行列に使用する変数を選択してください', continuous_column_list, (continuous_column_list[0], continuous_column_list[1]))
         st.header('散布図行列')
         scatt_matrix_df = df[scatt_matrix_list]
@@ -402,11 +422,15 @@ else:
     pass
 
 #ヒートマップ
-if uploaded_file is not None:
+if uploaded_file is not None and len(numerical_column_list) >= 1:
     heat_check = st.sidebar.checkbox('ヒートマップ')
     if heat_check == True:
-        if bar_check == False and hist_check == False and box_check == False and scatt_check == False and scatt_matrix_check == False:
-            st.title('グラフの作成')
+        if border is not None:
+            st.write('_________________________________________________________________')
+        else:
+            border = not None
+        if title is None:
+            title = st.title('グラフの作成')
         st.header('ヒートマップ')
         heat_list = st.sidebar.multiselect('ヒートマップに使用する変数を選択してください', numerical_column_list, (numerical_column_list[0], numerical_column_list[1]))
         if len(heat_list) <= 1:
@@ -446,11 +470,15 @@ else:
     pass
 
 #折れ線グラフ
-if uploaded_file is not None:
+if uploaded_file is not None and len(numerical_column_list) >= 1:
     line_chart_check = st.sidebar.checkbox('折れ線グラフ')
     if line_chart_check == True:
-        if bar_check == False and hist_check == False and box_check == False and scatt_check == False and scatt_matrix_check == False and heat_check == False:
-            st.title('グラフの作成')
+        if border is not None:
+            st.write('_________________________________________________________________')
+        else:
+            border = not None
+        if title is None:
+            title = st.title('グラフの作成')
         st.header('折れ線グラフ')
         line_chart_x = st.sidebar.selectbox('折れ線グラフのx軸を選択してください', numerical_column)
         line_chart_y = st.sidebar.selectbox('折れ線グラフのy軸を選択してください', numerical_column)
