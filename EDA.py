@@ -97,13 +97,13 @@ else:
 
 #要約統計量の確認
 if uploaded_file is not None:
-    summary_check = st.sidebar.checkbox('統計量の確認')
+    summary_check = st.sidebar.checkbox('要約統計量の確認')
     summary_index = ['データ数', '平均値', '標準偏差', '最小値', '第一四分位数', '中央値', '第二四分位数', '最大値']
     if summary_check == True:
         if dtype_check == False:
             st.title('データの概要')
         st.header('要約統計量の確認')
-        if len(numerical_column_list) != 0:
+        if len(continuous_column_list) != 0:
             summary_data = df.describe()
             summary_data.index = summary_index
             st.table(summary_data)
@@ -121,6 +121,8 @@ if uploaded_file is not None:
     if unique_check == True:
         if dtype_check == False and summary_check == False:
             st.title('データの概要')
+        else:
+            pass
         st.header('カテゴリ変数の値の種類')
         if len(categorical_column_list) != 0:
             st.table(categorical_data_unique)
@@ -137,6 +139,8 @@ if uploaded_file is not None:
     if null_check == True:
         if dtype_check == False and summary_check == False and unique_check == False:
             st.title('データの概要')
+        else:
+            pass
         st.header('欠損数の確認')
         null_count = df.isnull().sum().to_frame()
         null_count.columns = ['欠損数']
@@ -153,6 +157,8 @@ if uploaded_file is not None:
     if corr_matrix_check == True:
         if dtype_check == False and summary_check == False and unique_check == False and null_check == False:
             st.title('データの概要')
+        else:
+            pass
         st.header('相関行列の確認')
         corr_matrix_method = 'pearson'
         corr_matrix_method = st.radio('相関係数の算出方法（相関行列）', ('pearson', 'spearman', 'kendall'))
@@ -182,9 +188,10 @@ else:
 if uploaded_file is not None:
     bar_check = st.sidebar.checkbox('棒グラフ')
     if bar_check == True:
+        st.title('グラフの作成')
         st.header('棒グラフ')
         st.write('（※値の種類が多いとグラフの作成に時間がかかることがあります）')
-        bar_x = st.sidebar.selectbox('棒グラフのx軸の変数を選択してください', categorical_column)
+        bar_x = st.sidebar.selectbox('棒グラフのx軸を選択してください', categorical_column)
         bar_hue_check = st.checkbox('カテゴリ毎に棒グラフを分ける')
         if bar_hue_check == True:
             bar_hue = st.selectbox('棒グラフを分けるカテゴリ変数', categorical_column)
@@ -195,8 +202,8 @@ if uploaded_file is not None:
             sns.countplot(x=bar_x, data=df)
         st.pyplot(bar_fig)
         #グラフの保存
-        bar_name = st.text_input('棒グラフのファイル名を入力して下さい（Enterで確定）')
-        bar_file_type = st.selectbox('棒グラフの拡張子を選択して下さい', file_type)
+        bar_name = st.text_input('ファイル名（棒グラフ）')
+        bar_file_type = st.selectbox('拡張子（棒グラフ）', file_type)
         bar_out_put = st.button('棒グラフを出力する')
         if bar_out_put == True and bar_name != '':
             if f'.{bar_file_type}' in bar_name:
@@ -219,8 +226,10 @@ sturges = lambda n: math.ceil(math.log2(n*2))
 if uploaded_file is not None:
     hist_check = st.sidebar.checkbox('ヒストグラム')
     if hist_check == True:
+        if bar_check == False:
+            st.title('グラフの作成')
         st.header('ヒストグラム')
-        hist_x = st.sidebar.selectbox('ヒストグラムのx軸の変数を指定して下さい', continuous_column)
+        hist_x = st.sidebar.selectbox('ヒストグラムのx軸を選択してください', continuous_column)
         hist_bin = sturges(len(df[hist_x]))
         hist_hue_check = st.checkbox('カテゴリ毎にヒストグラムを分ける')
         if hist_hue_check == True:
@@ -236,8 +245,8 @@ if uploaded_file is not None:
             sns.histplot(data=df, x=df[hist_x], bins=hist_bin, ec='white')
         st.pyplot(hist_fig)
         #グラフの保存
-        hist_name = st.text_input('ヒストグラムのファイル名を入力して下さい（Enterで確定）')
-        hist_file_type = st.selectbox('ヒストグラムの拡張子を選択して下さい', file_type)
+        hist_name = st.text_input('ファイル名（ヒストグラム）')
+        hist_file_type = st.selectbox('拡張子（ヒストグラム）', file_type)
         hist_out_put = st.button('ヒストグラムを出力する')
         if hist_out_put == True and hist_name != '':
             if f'.{hist_file_type}' in hist_name:
@@ -257,17 +266,19 @@ else:
 if uploaded_file is not None:
     box_check = st.sidebar.checkbox('箱ひげ図とバイオリンプロット')
     if box_check == True:
+        if bar_check == False and hist_check == False:
+            st.title('グラフの作成')
         st.header('箱ひげ図とバイオリンプロット')
-        box_x = st.sidebar.selectbox('箱ひげ図のx軸となる変数を指定して下さい', categorical_column)
-        box_y = st.sidebar.selectbox('箱ひげ図のy軸となる変数を指定して下さい', continuous_column)
+        box_x = st.sidebar.selectbox('箱ひげ図のx軸を選択してください', categorical_column)
+        box_y = st.sidebar.selectbox('箱ひげ図のy軸を選択してください', continuous_column)
         box_df = pd.concat([df[box_x], df[box_y]], axis=1, join='outer')
         box_fig = plt.figure()
         box_fig.add_subplot(111)
         sns.boxplot(x=box_x, y=box_y, data=box_df)
         st.pyplot(box_fig)
         #グラフの保存
-        box_name = st.text_input('箱ひげ図のファイル名を入力して下さい（Enterで確定）')
-        select_file_type = st.selectbox('箱ひげ図の拡張子を選択して下さい', file_type)
+        box_name = st.text_input('ファイル名（箱ひげ図）')
+        select_file_type = st.selectbox('拡張子（箱ひげ図）', file_type)
         box_out_put = st.button('箱ひげ図を出力する')
         if box_out_put == True and box_name != '':
             if f'.{box_file_type}' in box_name:
@@ -282,8 +293,8 @@ if uploaded_file is not None:
         sns.violinplot(x=df[box_x], y=df[box_y])
         st.pyplot(violin_fig)
         #グラフの保存
-        violin_name = st.text_input('バイオリンプロットのファイル名を入力して下さい（Enterで確定）')
-        violin_file_type = st.selectbox('バイオリンプロットの拡張子を選択して下さい', file_type)
+        violin_name = st.text_input('ファイル名（バイオリンプロット）')
+        violin_file_type = st.selectbox('拡張子（バイオリンプロット）', file_type)
         violin_out_put = st.button('バイオリンプロットを出力する')
         if violin_out_put == True and violin_name != '':
             if f'.{violin_file_type}' in violin_name:
@@ -303,16 +314,18 @@ else:
 if uploaded_file is not None:
     scatt_check = st.sidebar.checkbox('散布図')
     if scatt_check == True:
+        if bar_check == False and hist_check == False and box_check == False:
+            st.title('グラフの作成')
         st.header('散布図')
-        scatt_x = st.sidebar.selectbox('散布図のx軸の変数を指定して下さい', numerical_column)
-        scatt_y = st.sidebar.selectbox('散布図のy軸の変数を指定して下さい', numerical_column)
+        scatt_x = st.sidebar.selectbox('散布図のx軸を選択してください', numerical_column)
+        scatt_y = st.sidebar.selectbox('散布図のy軸を選択してください', numerical_column)
         scatt_df = pd.concat([(df[scatt_x]), (df[scatt_y])], axis=1, join='outer')
         if scatt_x == scatt_y:
             st.write('x軸とy軸には別の変数を選択して下さい')
         else:
-            scatt_color_check = st.checkbox('第3変数を指定する')
+            scatt_color_check = st.checkbox('カテゴリ毎に散布図を分ける')
             if scatt_color_check == False:
-                scatt_hist_list = ['普通', '六角形', '等高線', '回帰直線']
+                scatt_hist_list = ['普通', '六角形', '等高線', '回帰直線付き']
                 scatt_hist_type = st.selectbox('散布図のタイプを指定して下さい', scatt_hist_list)
                 if scatt_hist_type == '普通':
                     scatt_hist_fig = sns.jointplot(scatt_x, scatt_y, data=df)
@@ -324,8 +337,8 @@ if uploaded_file is not None:
                     scatt_hist_fig = sns.jointplot(scatt_x, scatt_y, data=df, kind='reg')
                 st.pyplot(scatt_hist_fig)
                 #グラフの保存
-                scatt_name = st.text_input('散布図のファイル名を入力して下さい（Enterで確定）')
-                scatt_file_type = st.selectbox('散布図の拡張子を選択して下さい', file_type)
+                scatt_name = st.text_input('ファイル名（散布図）')
+                scatt_file_type = st.selectbox('拡張子（散布図）', file_type)
                 scatt_out_put = st.button('散布図を出力する')
                 if scatt_out_put == True and scatt_name != '':
                     if f'.{scatt_file_type}' in scatt_name:
@@ -337,7 +350,7 @@ if uploaded_file is not None:
                 else:
                     pass
             else:
-                scatt_color = st.selectbox('第3変数を選択して下さい', con_cate_column)
+                scatt_color = st.selectbox('散布図を分けるカテゴリ変数', con_cate_column)
                 scatt_df = pd.concat([scatt_df, df[scatt_color]], axis=1, join='outer')
                 scatt_fig = sns.lmplot(x=scatt_x, y=scatt_y, data=scatt_df, hue=scatt_color)
                 st.pyplot(scatt_fig)
@@ -363,14 +376,16 @@ else:
 if uploaded_file is not None:
     scatt_matrix_check = st.sidebar.checkbox('散布図行列')
     if scatt_matrix_check == True:
-        scatt_matrix_list = st.sidebar.multiselect('散布図行列に使用する変数', continuous_column_list, (continuous_column_list[0], continuous_column_list[1]))
+        if bar_check == False and hist_check == False and box_check == False and scatt_check == False:
+            st.title('グラフの作成')
+        scatt_matrix_list = st.sidebar.multiselect('散布図行列に使用する変数を選択してください', continuous_column_list, (continuous_column_list[0], continuous_column_list[1]))
         st.header('散布図行列')
         scatt_matrix_df = df[scatt_matrix_list]
         scatt_matrix_fig = sns.pairplot(scatt_matrix_df)
         st.pyplot(scatt_matrix_fig)
         #グラフの保存
-        scatt_matrix_name = st.text_input('散布図行列のファイル名を入力して下さい（Enterで確定）')
-        scatt_matrix_file_type = st.selectbox('散布図行列の拡張子を選択して下さい', file_type)
+        scatt_matrix_name = st.text_input('ファイル名（散布図行列）')
+        scatt_matrix_file_type = st.selectbox('拡張子（散布図行列）', file_type)
         scatt_matrix_out_put = st.button('散布図行列を出力する')
         if scatt_matrix_out_put == True and scatt_matrix_name != '':
             if f'.{scatt_matrix_file_type}' in scatt_matrix_name:
@@ -390,8 +405,10 @@ else:
 if uploaded_file is not None:
     heat_check = st.sidebar.checkbox('ヒートマップ')
     if heat_check == True:
+        if bar_check == False and hist_check == False and box_check == False and scatt_check == False and scatt_matrix_check == False:
+            st.title('グラフの作成')
         st.header('ヒートマップ')
-        heat_list = st.sidebar.multiselect('ヒートマップに使用する変数', numerical_column_list, (numerical_column_list[0], numerical_column_list[1]))
+        heat_list = st.sidebar.multiselect('ヒートマップに使用する変数を選択してください', numerical_column_list, (numerical_column_list[0], numerical_column_list[1]))
         if len(heat_list) <= 1:
             st.write('変数を複数選択して下さい')
         else:
@@ -402,13 +419,17 @@ if uploaded_file is not None:
             heat_corr = heat_df.corr(method=heat_method)
             #ヒートマップの作成
             value_display = True
-            value_display = st.radio('相関係数の表示有無', (True, False))
+            value_display_radio = st.radio('相関係数の表示有無', ('表示する', '表示しない'))
+            if value_display_radio == '表示する':
+                pass
+            else:
+                value_display = False
             heat_fig = plt.figure()
             sns.heatmap(heat_corr,  vmin=-1.0, vmax=1.0, center=0, annot=value_display, fmt='.3f', xticklabels=heat_corr.columns.values, yticklabels=heat_corr.columns.values)
             st.pyplot(heat_fig)
             #グラフの保存
-            heat_name = st.text_input('ヒートマップのファイル名を入力して下さい（Enterで確定）')
-            heat_file_type = st.selectbox('ヒートマップの拡張子を選択して下さい', file_type)
+            heat_name = st.text_input('ファイル名（ヒートマップ）')
+            heat_file_type = st.selectbox('拡張子（ヒートマップ）', file_type)
             heat_out_put = st.button('ヒートマップを出力する')
             if heat_out_put == True and heat_name != '':
                 if f'.{heat_file_type}' in heat_name:
@@ -428,9 +449,11 @@ else:
 if uploaded_file is not None:
     line_chart_check = st.sidebar.checkbox('折れ線グラフ')
     if line_chart_check == True:
+        if bar_check == False and hist_check == False and box_check == False and scatt_check == False and scatt_matrix_check == False and heat_check == False:
+            st.title('グラフの作成')
         st.header('折れ線グラフ')
-        line_chart_x = st.sidebar.selectbox('折れ線グラフのx軸の変数を指定して下さい', numerical_column)
-        line_chart_y = st.sidebar.selectbox('折れ線グラフのy軸の変数を指定して下さい', numerical_column)
+        line_chart_x = st.sidebar.selectbox('折れ線グラフのx軸を選択してください', numerical_column)
+        line_chart_y = st.sidebar.selectbox('折れ線グラフのy軸を選択してください', numerical_column)
         line_chart_color_check = st.checkbox('カテゴリ毎に折れ線グラフを分ける')
         if line_chart_color_check == False:
             line_chart_fig = plt.figure()
@@ -441,9 +464,9 @@ if uploaded_file is not None:
             sns.lineplot(x=line_chart_x, y=line_chart_y, hue=line_chart_color, data=df)
         st.pyplot(line_chart_fig)
         #グラフの保存
-        line_chart_name = st.text_input('折れ線グラフのファイル名を入力して下さい（Enterで確定）')
-        line_chart_file_type = st.selectbox('折れ線グラフの拡張子を選択して下さい', file_type)
-        line_chart_out_put = st.button('折れ線グラフsを出力する')
+        line_chart_name = st.text_input('ファイル名（折れ線グラフ）')
+        line_chart_file_type = st.selectbox('拡張子（折れ線グラフ）', file_type)
+        line_chart_out_put = st.button('折れ線グラフを出力する')
         if line_chart_out_put == True and line_chart_name != '':
             if f'.{line_chart_file_type}' in line_chart_name:
                 line_chart_fig.savefig(line_chart_name)
