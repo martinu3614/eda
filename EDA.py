@@ -13,6 +13,8 @@ import sys
 import scipy.stats as sts
 
 #EDA用WebApp
+#サイトタイトル
+st.title('EDA（探索的データ解析）を簡単に...')
 
 #ファイルアップロード
 uploaded_file = st.sidebar.file_uploader("ファイルアップロード", type='csv')
@@ -58,8 +60,6 @@ if uploaded_file is not None:
 else:
     pass
 
-#サイトタイトル
-st.title('EDA（探索的データ解析）を簡単に...')
 
 #______________________________________________________________________________________
 #アップロードデータの確認
