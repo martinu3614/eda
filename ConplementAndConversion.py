@@ -74,3 +74,104 @@ if uploaded_file is not None:
 else:
     st.header('csvファイルを選択して下さい')
 
+#______________________________________________________________________________________
+#データの概要
+if uploaded_file is not None:
+    st.sidebar.title('データの概要')
+else:
+    pass
+
+
+#______________________________________________________________________________________
+#データ型の確認
+if uploaded_file is not None:
+    dtype_check = st.sidebar.checkbox('データ型の確認')
+    if dtype_check == True:
+        st.title('データの概要')
+        st.header('データ型の確認')
+        st.table(data_type)
+        st.write('(int : 整数 , float : 小数 , object : 文字 , bool : 真偽)')
+    else:
+        pass
+else:
+    pass
+
+
+#要約統計量の確認
+if uploaded_file is not None:
+    summary_check = st.sidebar.checkbox('要約統計量の確認')
+    summary_index = ['データ数', '平均値', '標準偏差', '最小値', '第一四分位数', '中央値', '第二四分位数', '最大値']
+    if summary_check == True:
+        if dtype_check == False:
+            st.title('データの概要')
+        st.header('要約統計量の確認')
+        if len(continuous_column_list) != 0:
+            summary_data = df.describe()
+            summary_data.index = summary_index
+            st.table(summary_data)
+            st.write('※数値で表されたカテゴリ変数が含まれている場合があります')
+        else:
+            st.write('数値型の変数がありません')
+    else:
+        pass
+else:
+    pass
+
+#カテゴリ変数の値の種類
+if uploaded_file is not None:
+    unique_check = st.sidebar.checkbox('カテゴリ変数の値の種類')
+    if unique_check == True:
+        if dtype_check == False and summary_check == False:
+            st.title('データの概要')
+        else:
+            pass
+        st.header('カテゴリ変数の値の種類')
+        if len(categorical_column_list) != 0:
+            st.table(categorical_data_unique)
+        else:
+            st.write('カテゴリ変数がありません')
+    else:
+        pass
+else:
+    pass
+
+#欠損数の確認
+if uploaded_file is not None:
+    null_check = st.sidebar.checkbox('欠損数の確認')
+    if null_check == True:
+        if dtype_check == False and summary_check == False and unique_check == False:
+            st.title('データの概要')
+        else:
+            pass
+        st.header('欠損数の確認')
+        null_count = df.isnull().sum().to_frame()
+        null_count.columns = ['欠損数']
+        null_count['欠損割合'] = null_count['欠損数'] / len(df.index)
+        st.table(null_count)
+    else:
+        pass
+else:
+    pass
+
+#変数の相関行列
+if uploaded_file is not None:
+    corr_matrix_check = st.sidebar.checkbox('相関行列の確認')
+    if corr_matrix_check == True:
+        if dtype_check == False and summary_check == False and unique_check == False and null_check == False:
+            st.title('データの概要')
+        else:
+            pass
+        st.header('相関行列の確認')
+        corr_matrix_method = 'pearson'
+        corr_matrix_method = st.radio('相関係数の算出方法（相関行列）', ('pearson', 'spearman', 'kendall'))
+        corr_matrix = df.corr(method=corr_matrix_method)
+        st.table(corr_matrix)
+        st.write('※注目したい変数に合わせて算出方法を適切に選択して下さい')
+    else:
+        pass
+else:
+    pass
+
+
+#______________________________________________________________________________________
+#欠損値を
