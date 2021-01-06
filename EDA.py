@@ -1,16 +1,10 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import sklearn
-from sklearn import linear_model
-import plotly.express as px
-import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import math
-from pylab import rcParams
 import seaborn as sns
 import sys
-import scipy.stats as sts
 
 #EDA用WebApp
 #サイトタイトル
