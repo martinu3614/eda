@@ -5,10 +5,13 @@ import matplotlib.pyplot as plt
 import math
 import seaborn as sns
 import sys
+import os
+
+path = os.getcwd()
 
 #EDA用WebApp
 #サイトタイトル
-st.title('EDA（探索的データ解析）を簡単に...')
+st.title('EDA（探索的データ解析）用 WEB Application')
 
 #ファイルアップロード
 uploaded_file = st.sidebar.file_uploader("ファイルアップロード", type='csv')
@@ -199,18 +202,18 @@ if uploaded_file is not None and len(categorical_column_list) >= 1:
             sns.countplot(x=bar_x, data=df)
         st.pyplot(bar_fig)
         #グラフの保存
-        bar_name = st.text_input('ファイル名（棒グラフ）')
-        bar_file_type = st.selectbox('拡張子（棒グラフ）', file_type)
-        bar_out_put = st.button('棒グラフを出力する')
-        if bar_out_put == True and bar_name != '':
-            if f'.{bar_file_type}' in bar_name:
-                bar_fig.savefig(bar_name)
-            else:
-                bar_fig.savefig(bar_name + f'.{bar_file_type}')
-        elif bar_out_put == True and bar_name == '':
-            st.write('※ファイル名を入力して下さい※')
-        else:
-            pass
+#        bar_name = st.text_input('ファイル名（棒グラフ）')
+#        bar_file_type = st.selectbox('拡張子（棒グラフ）', file_type)
+#        bar_out_put = st.button('棒グラフを出力する')
+#        if bar_out_put == True and bar_name != '':
+#            if f'.{bar_file_type}' in bar_name:
+#                bar_fig.savefig(path, bar_name)
+#            else:
+#                bar_fig.savefig(path, bar_name + f'.{bar_file_type}')
+#        elif bar_out_put == True and bar_name == '':
+#            st.write('※ファイル名を入力して下さい※')
+#        else:
+#            pass
     else:
         st.write('カテゴリ変数がありません')
 else:
@@ -246,18 +249,18 @@ if uploaded_file is not None and len(continuous_column_list) >= 1:
             sns.histplot(data=df, x=df[hist_x], bins=hist_bin, ec='white')
         st.pyplot(hist_fig)
         #グラフの保存
-        hist_name = st.text_input('ファイル名（ヒストグラム）')
-        hist_file_type = st.selectbox('拡張子（ヒストグラム）', file_type)
-        hist_out_put = st.button('ヒストグラムを出力する')
-        if hist_out_put == True and hist_name != '':
-            if f'.{hist_file_type}' in hist_name:
-                hist_fig.savefig(hist_name)
-            else:
-                hist_fig.savefig(hist_name + f'.{hist_file_type}')
-        elif hist_out_put == True and hist_name == '':
-            st.write('※ファイル名を入力して下さい※')
-        else:
-            pass
+        #hist_name = st.text_input('ファイル名（ヒストグラム）')
+        #hist_file_type = st.selectbox('拡張子（ヒストグラム）', file_type)
+        #hist_out_put = st.button('ヒストグラムを出力する')
+        #if hist_out_put == True and hist_name != '':
+            #if f'.{hist_file_type}' in hist_name:
+                #hist_fig.savefig(hist_name)
+            #else:
+                #hist_fig.savefig(hist_name + f'.{hist_file_type}')
+        #elif hist_out_put == True and hist_name == '':
+            #st.write('※ファイル名を入力して下さい※')
+        #else:
+            #pass
     else:
         pass
 else:
@@ -299,18 +302,18 @@ if uploaded_file is not None and len(categorical_column_list) >= 1 and len(conti
         sns.violinplot(x=df[box_x], y=df[box_y])
         st.pyplot(violin_fig)
         #グラフの保存
-        violin_name = st.text_input('ファイル名（バイオリンプロット）')
-        violin_file_type = st.selectbox('拡張子（バイオリンプロット）', file_type)
-        violin_out_put = st.button('バイオリンプロットを出力する')
-        if violin_out_put == True and violin_name != '':
-            if f'.{violin_file_type}' in violin_name:
-                violin_fig.savefig(violin_name)
-            else:
-                violin_fig.savefig(violin_name + f'.{violin_file_type}')
-        elif violin_out_put == True and violin_name == '':
-            st.write('※ファイル名を入力して下さい※')
-        else:
-            pass
+#        violin_name = st.text_input('ファイル名（バイオリンプロット）')
+#        violin_file_type = st.selectbox('拡張子（バイオリンプロット）', file_type)
+#        violin_out_put = st.button('バイオリンプロットを出力する')
+#        if violin_out_put == True and violin_name != '':
+#            if f'.{violin_file_type}' in violin_name:
+#                violin_fig.savefig(violin_name)
+#            else:
+#                violin_fig.savefig(violin_name + f'.{violin_file_type}')
+#        elif violin_out_put == True and violin_name == '':
+#            st.write('※ファイル名を入力して下さい※')
+#        else:
+#            pass
     else:
         pass
 else:
@@ -347,36 +350,36 @@ if uploaded_file is not None and len(numerical_column_list) >= 1:
                     scatt_hist_fig = sns.jointplot(scatt_x, scatt_y, data=df, kind='reg')
                 st.pyplot(scatt_hist_fig)
                 #グラフの保存
-                scatt_name = st.text_input('ファイル名（散布図）')
-                scatt_file_type = st.selectbox('拡張子（散布図）', file_type)
-                scatt_out_put = st.button('散布図を出力する')
-                if scatt_out_put == True and scatt_name != '':
-                    if f'.{scatt_file_type}' in scatt_name:
-                        scatt_fig.savefig(scatt_name)
-                    else:
-                        scatt_hist_fig.savefig(scatt_name + f'.{scatt_file_type}')
-                elif scatt_out_put == True and scatt_name == '':
-                    st.write('※ファイル名を入力して下さい※')
-                else:
-                    pass
+#                scatt_name = st.text_input('ファイル名（散布図）')
+#                scatt_file_type = st.selectbox('拡張子（散布図）', file_type)
+#                scatt_out_put = st.button('散布図を出力する')
+#                if scatt_out_put == True and scatt_name != '':
+#                    if f'.{scatt_file_type}' in scatt_name:
+#                        scatt_fig.savefig(scatt_name)
+#                    else:
+#                        scatt_hist_fig.savefig(scatt_name + f'.{scatt_file_type}')
+#                elif scatt_out_put == True and scatt_name == '':
+#                    st.write('※ファイル名を入力して下さい※')
+#                else:
+#                    pass
             else:
                 scatt_color = st.selectbox('散布図を分けるカテゴリ変数', con_cate_column)
                 scatt_df = pd.concat([scatt_df, df[scatt_color]], axis=1, join='outer')
                 scatt_fig = sns.lmplot(x=scatt_x, y=scatt_y, data=scatt_df, hue=scatt_color)
                 st.pyplot(scatt_fig)
                 #グラフの保存
-                scatt_name = st.text_input('散布図のファイル名を入力して下さい（Enterで確定）')
-                scatt_file_type = st.selectbox('散布図の拡張子を選択して下さい', file_type)
-                scatt_out_put = st.button('散布図を出力する')
-                if scatt_out_put == True and scatt_name != '':
-                    if f'.{scatt_file_type}' in scatt_name:
-                        scatt_fig.savefig(scatt_name)
-                    else:
-                        scatt_fig.savefig(scatt_name + f'.{scatt_file_type}')
-                elif scatt_out_put == True and scatt_name == '':
-                    st.write('※ファイル名を入力して下さい※')
-                else:
-                    pass
+#                scatt_name = st.text_input('散布図のファイル名を入力して下さい（Enterで確定）')
+#                scatt_file_type = st.selectbox('散布図の拡張子を選択して下さい', file_type)
+#                scatt_out_put = st.button('散布図を出力する')
+#                if scatt_out_put == True and scatt_name != '':
+#                    if f'.{scatt_file_type}' in scatt_name:
+#                        scatt_fig.savefig(scatt_name)
+#                    else:
+#                        scatt_fig.savefig(scatt_name + f'.{scatt_file_type}')
+#                elif scatt_out_put == True and scatt_name == '':
+#                    st.write('※ファイル名を入力して下さい※')
+#                else:
+#                    pass
     else:
         pass
 else:
@@ -398,18 +401,18 @@ if uploaded_file is not None and len(continuous_column_list) >= 1:
         scatt_matrix_fig = sns.pairplot(scatt_matrix_df)
         st.pyplot(scatt_matrix_fig)
         #グラフの保存
-        scatt_matrix_name = st.text_input('ファイル名（散布図行列）')
-        scatt_matrix_file_type = st.selectbox('拡張子（散布図行列）', file_type)
-        scatt_matrix_out_put = st.button('散布図行列を出力する')
-        if scatt_matrix_out_put == True and scatt_matrix_name != '':
-            if f'.{scatt_matrix_file_type}' in scatt_matrix_name:
-                scatt_matrix_fig.savefig(scatt_matrix_name)
-            else:
-                scatt_matrix_fig.savefig(scatt_matrix_name + f'.{scatt_matrix_file_type}')
-        elif scatt_matrix_out_put == True and scatt_matrix_name == '':
-            st.write('※ファイル名を入力して下さい※')
-        else:
-            pass
+#        scatt_matrix_name = st.text_input('ファイル名（散布図行列）')
+#        scatt_matrix_file_type = st.selectbox('拡張子（散布図行列）', file_type)
+#        scatt_matrix_out_put = st.button('散布図行列を出力する')
+#        if scatt_matrix_out_put == True and scatt_matrix_name != '':
+#            if f'.{scatt_matrix_file_type}' in scatt_matrix_name:
+#                scatt_matrix_fig.savefig(scatt_matrix_name)
+#            else:
+#                scatt_matrix_fig.savefig(scatt_matrix_name + f'.{scatt_matrix_file_type}')
+#        elif scatt_matrix_out_put == True and scatt_matrix_name == '':
+#            st.write('※ファイル名を入力して下さい※')
+#        else:
+#            pass
     else:
         pass
 else:
@@ -445,19 +448,19 @@ if uploaded_file is not None and len(numerical_column_list) >= 1:
             heat_fig = plt.figure()
             sns.heatmap(heat_corr,  vmin=-1.0, vmax=1.0, center=0, annot=value_display, fmt='.3f', xticklabels=heat_corr.columns.values, yticklabels=heat_corr.columns.values)
             st.pyplot(heat_fig)
-            #グラフの保存
-            heat_name = st.text_input('ファイル名（ヒートマップ）')
-            heat_file_type = st.selectbox('拡張子（ヒートマップ）', file_type)
-            heat_out_put = st.button('ヒートマップを出力する')
-            if heat_out_put == True and heat_name != '':
-                if f'.{heat_file_type}' in heat_name:
-                    heat_fig.savefig(heat_name)
-                else:
-                    heat_fig.savefig(heat_name + f'.{heat_file_type}')
-            elif heat_out_put == True and heat_name == '':
-                st.write('※ファイル名を入力して下さい※')
-            else:
-                pass
+#            #グラフの保存
+#            heat_name = st.text_input('ファイル名（ヒートマップ）')
+#            heat_file_type = st.selectbox('拡張子（ヒートマップ）', file_type)
+#            heat_out_put = st.button('ヒートマップを出力する')
+#            if heat_out_put == True and heat_name != '':
+#                if f'.{heat_file_type}' in heat_name:
+#                    heat_fig.savefig(heat_name)
+#                else:
+#                    heat_fig.savefig(heat_name + f'.{heat_file_type}')
+#            elif heat_out_put == True and heat_name == '':
+#                st.write('※ファイル名を入力して下さい※')
+#            else:
+#                pass
     else:
         pass
 else:
@@ -486,18 +489,18 @@ if uploaded_file is not None and len(numerical_column_list) >= 1:
             sns.lineplot(x=line_chart_x, y=line_chart_y, hue=line_chart_color, data=df)
         st.pyplot(line_chart_fig)
         #グラフの保存
-        line_chart_name = st.text_input('ファイル名（折れ線グラフ）')
-        line_chart_file_type = st.selectbox('拡張子（折れ線グラフ）', file_type)
-        line_chart_out_put = st.button('折れ線グラフを出力する')
-        if line_chart_out_put == True and line_chart_name != '':
-            if f'.{line_chart_file_type}' in line_chart_name:
-                line_chart_fig.savefig(line_chart_name)
-            else:
-                line_chart_fig.savefig(line_chart_name + f'.{line_chart_file_type}')
-        elif line_chart_out_put == True and heat_name == '':
-            st.write('※ファイル名を入力して下さい※')
-        else:
-            pass
+#        line_chart_name = st.text_input('ファイル名（折れ線グラフ）')
+#        line_chart_file_type = st.selectbox('拡張子（折れ線グラフ）', file_type)
+#        line_chart_out_put = st.button('折れ線グラフを出力する')
+#        if line_chart_out_put == True and line_chart_name != '':
+#            if f'.{line_chart_file_type}' in line_chart_name:
+#                line_chart_fig.savefig(line_chart_name)
+#            else:
+#                line_chart_fig.savefig(line_chart_name + f'.{line_chart_file_type}')
+#        elif line_chart_out_put == True and heat_name == '':
+#            st.write('※ファイル名を入力して下さい※')
+#        else:
+#            pass
     else:
         pass
 else:
